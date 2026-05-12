@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BancoGato | Seguridad de Elite</title>
+    <title>BancoGato | V 1.0 </title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -11,144 +11,126 @@
         :root { --verde: #98ff98; --verde-dark: #76d376; --negro: #0a0a0a; --panel: #161616; --texto: #ffffff; --rojo: #ff4d4d; }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--negro); color: var(--texto); overflow-x: hidden; }
         
-        /* UI Elements */
         input, select { width: 100%; padding: 14px; margin: 8px 0; border-radius: 10px; background: #1a1a1a; color: var(--verde); border: 1px solid #333; outline: none; box-sizing: border-box; font-size: 1rem; }
-        input:focus { border-color: var(--verde); box-shadow: 0 0 5px var(--verde); }
         .btn-gato { background: var(--verde); color: #000; border: none; padding: 16px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 10px; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-gato:hover { background: var(--verde-dark); }
-        .btn-gato:active { transform: scale(0.98); }
         .btn-outline { background: transparent; border: 1px solid var(--verde); color: var(--verde); margin-top: 10px; }
 
-        /* Estructura */
-        #auth-screen, #app-screen, #setup-profile { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; }
-        .logo-img { max-width: 180px; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(152,255,152,0.3)); }
+        #auth-screen, #app-screen, #setup-profile, #admin-screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; }
         .container { width: 100%; max-width: 400px; }
 
         /* Dashboard */
-        .card-saldo { background: linear-gradient(145deg, #161616, #000); padding: 25px; border-radius: 24px; border: 1px solid #222; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .r-money { font-size: 2.8rem; font-weight: 800; color: var(--verde); text-shadow: 0 0 10px rgba(152,255,152,0.2); }
-        
+        .card-saldo { background: linear-gradient(145deg, #161616, #000); padding: 25px; border-radius: 24px; border: 1px solid #222; text-align: center; margin-bottom: 20px; }
+        .r-money { font-size: 2.8rem; font-weight: 800; color: var(--verde); }
         .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .mini-btn { padding: 12px; font-size: 0.85rem; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
 
         /* GatoCard */
-        .gatocard { background: linear-gradient(135deg, #222 0%, #0a0a0a 100%); width: 100%; height: 210px; border-radius: 18px; padding: 25px; position: relative; border: 1px solid rgba(152,255,152,0.3); margin-top: 20px; box-sizing: border-box; overflow: hidden; }
-        .gatocard::after { content: "BANCO GATO"; position: absolute; right: -20px; bottom: 10px; font-size: 3rem; opacity: 0.03; font-weight: 900; transform: rotate(-10deg); }
+        .gatocard { background: linear-gradient(135deg, #222 0%, #0a0a0a 100%); width: 100%; height: 210px; border-radius: 18px; padding: 25px; position: relative; border: 1px solid rgba(152,255,152,0.3); margin-top: 20px; box-sizing: border-box; }
         .chip { width: 45px; height: 35px; background: linear-gradient(to bottom right, #ffd700, #b8860b); border-radius: 6px; margin-bottom: 30px; }
-        .card-num { font-family: 'Courier New', monospace; font-size: 1.3rem; letter-spacing: 2px; color: #eee; }
-        .card-info { display: flex; justify-content: space-between; margin-top: 45px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+        .card-num { font-family: 'Courier New', monospace; font-size: 1.2rem; letter-spacing: 2px; }
 
-        /* Modales */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; padding: 20px; align-items: center; justify-content: center; }
-        .modal-content { background: var(--panel); padding: 30px; border-radius: 20px; border: 1px solid var(--verde); width: 100%; max-width: 380px; position: relative; }
-        
-        .movimiento-item { padding: 15px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
-        .tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; background: #333; }
+        /* Admin Styles */
+        .admin-box { background: #111; border: 1px solid #333; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .admin-item { border-bottom: 1px solid #222; padding: 10px 0; font-size: 0.8rem; }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--panel); padding: 30px; border-radius: 20px; border: 1px solid var(--verde); width: 100%; max-width: 380px; }
     </style>
 </head>
 <body onload="checkAuth()">
 
     <div id="auth-screen">
-        <img src="https://i.postimg.cc/zXxLcyCv/1778560410678-(1).jpg" class="logo-img">
-        <h2 style="margin-bottom: 5px;">BancoGato</h2>
-        <p style="opacity: 0.6; margin-bottom: 30px; font-size: 0.9rem;">Seguridad en cada Ronroneo</p>
-        
+        <img src="https://i.postimg.cc/zXxLcyCv/1778560410678-(1).jpg" style="max-width: 150px; margin-bottom: 20px;">
+        <h2>BancoGato</h2>
         <div class="container">
             <input type="email" id="email" placeholder="Email de UQT">
             <input type="password" id="pass" placeholder="Tu Contraseña">
-
-            <button class="btn-gato" id="btn-login" onclick="iniciarSesion()">Iniciar Sesión</button>
-            <button class="btn-gato btn-outline" id="btn-register" onclick="crearCuenta()">Crear Cuenta</button>
-            <button class="btn-gato btn-outline" style="border-color:#333; color:#555;" onclick="accesoAdmin()">Acceso Admin</button>
-        </div>
-    </div>
-
-    <div id="setup-profile" style="display:none;">
-        <h3>Finaliza tu Registro</h3>
-        <p style="font-size: 0.8rem; opacity: 0.7; text-align: center;">Vemos que eres nuevo en el Banco. <br>¡Configura tu identidad bancaria!</p>
-        <div class="container">
-            <input type="text" id="reg-nombre" placeholder="Nombre">
-            <input type="text" id="reg-apellido" placeholder="Apellido">
-            <input type="text" id="reg-alias" placeholder="Crea tu Alias (ej: michi.rico)">
-            <button class="btn-gato" onclick="completarRegistro()">Activar mi Cuenta</button>
+            <button class="btn-gato" onclick="iniciarSesion()">Entrar</button>
+            <button class="btn-gato btn-outline" onclick="crearCuenta()">Crear Cuenta</button>
+            <button id="btn-admin-gate" class="btn-gato btn-outline" style="opacity: 0.4;" onclick="accesoAdmin()">Admin</button>
         </div>
     </div>
 
     <div id="app-screen" style="display:none;">
         <div class="container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <span>Michi: <b id="user-name" style="color: var(--verde);">...</b></span>
-                <button onclick="logout()" style="background:none; border:none; color:var(--rojo); cursor:pointer; font-weight:bold;">SALIR</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span>Hola, <b id="user-name">...</b></span>
+                <button onclick="logout()" style="color:var(--rojo); background:none; border:none; cursor:pointer;">Cerrar Sesión</button>
             </div>
-
             <div class="card-saldo">
-                <p style="margin:0; font-size: 0.8rem; opacity: 0.6; letter-spacing: 1px;">SALDO DISPONIBLE</p>
                 <div class="r-money">R$ <span id="saldo-val">0.00</span></div>
-                <div class="tag">ALIAS: <span id="user-alias">...</span></div>
+                <div style="font-size: 0.7rem; color: var(--verde);">ALIAS: <span id="user-alias">...</span></div>
             </div>
-
             <div class="grid-buttons">
-                <button class="btn-gato mini-btn" onclick="abrirModal('modal-transferir')"><span>💸</span> Transferir</button>
-                <button class="btn-gato mini-btn" onclick="abrirModal('modal-pedir')"><span>🤝</span> Pedir R$</button>
-                <button class="btn-gato mini-btn" onclick="abrirModal('modal-prestamo')"><span>🏦</span> Préstamo</button>
-                <button class="btn-gato mini-btn" onclick="abrirModal('modal-sucursal')"><span>📍</span> Sucursal</button>
+                <button class="btn-gato mini-btn" onclick="abrirModal('modal-transferir')">💸 Transferir</button>
+                <button class="btn-gato mini-btn" onclick="abrirModal('modal-uqtcard')">💳 Cargar UQT</button>
+                <button class="btn-gato mini-btn" onclick="abrirModal('modal-sucursal')">📍 Sucursal</button>
+                <button class="btn-gato mini-btn" onclick="alert('Próximamente')">🤝 Préstamo</button>
             </div>
-
             <div class="gatocard">
                 <div class="chip"></div>
                 <div class="card-num" id="card-number">7777 **** **** ****</div>
-                <div class="card-info">
-                    <div>
-                        <div style="opacity:0.5; font-size:0.6rem;">TITULAR</div>
-                        <div id="card-holder">...</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="opacity:0.5; font-size:0.6rem;">CVV</div>
-                        <div id="card-cvv">***</div>
-                    </div>
+                <div style="display:flex; justify-content:space-between; margin-top:40px; font-size:0.7rem;">
+                    <div id="card-holder">...</div>
+                    <div>CVV: <span id="card-cvv">***</span></div>
                 </div>
             </div>
+            <h4 style="color:var(--verde); margin-top:20px;">MOVIMIENTOS</h4>
+            <div id="lista-movimientos"></div>
+        </div>
+    </div>
 
-            <h4 style="color: var(--verde); margin-top: 30px;">MOVIMIENTOS RECIENTES</h4>
-            <div id="lista-movimientos" style="background:var(--panel); border-radius:15px; margin-bottom: 100px;">
-                </div>
+    <div id="modal-uqtcard" class="modal">
+        <div class="modal-content">
+            <h3>Cargar UQTCard</h3>
+            <div id="uqt-step-1">
+                <input type="email" id="uqt-email" placeholder="Email del usuario UQT">
+                <input type="number" id="uqt-monto" placeholder="Importe R$">
+                <button class="btn-gato" onclick="validarUQT()">Siguiente</button>
+            </div>
+            <div id="uqt-step-2" style="display:none;">
+                <p>¿Confirmas cargar R$ <b id="uqt-resumen-monto"></b> al usuario <b id="uqt-resumen-email"></b>?</p>
+                <button class="btn-gato" onclick="confirmarUQT()">Confirmar Carga</button>
+            </div>
+            <button class="btn-gato btn-outline" onclick="cerrarModales()">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="admin-screen" style="display:none;">
+        <h2 style="color:var(--verde);">PANEL CONTROL ADRO CORP</h2>
+        <div class="container">
+            <div class="admin-box">
+                <h4>💵 Dar Plata</h4>
+                <input type="text" id="adm-id" placeholder="Alias o N° Tarjeta">
+                <input type="number" id="adm-monto" placeholder="Cantidad R$">
+                <button class="btn-gato" onclick="adminCargarSaldo()">Inyectar Fondos</button>
+            </div>
+
+            <div class="admin-box">
+                <h4>🚫 Bloquear Usuario</h4>
+                <input type="text" id="adm-block-id" placeholder="Alias o N° Tarjeta">
+                <input type="text" id="adm-block-time" placeholder="Tiempo (ej: Permanente)">
+                <button class="btn-gato" style="background:var(--rojo);" onclick="adminBloquear()">Bloquear</button>
+                <div id="lista-baneados" style="margin-top:10px; font-size:0.7rem;"></div>
+            </div>
+
+            <div class="admin-box">
+                <h4>📅 Turnos Pendientes</h4>
+                <div id="lista-turnos-admin"></div>
+            </div>
+            <button class="btn-gato btn-outline" onclick="location.reload()">Salir del Panel</button>
         </div>
     </div>
 
     <div id="modal-transferir" class="modal">
         <div class="modal-content">
-            <h3 style="margin-top:0;">Transferencia Segura</h3>
-            <div id="step-t-1">
-                <input type="text" id="t-alias" placeholder="Alias del destinatario">
-                <button class="btn-gato" onclick="validarTransferencia()">Siguiente</button>
-            </div>
-            <div id="step-t-2" style="display:none;">
-                <p style="background: #000; padding: 10px; border-radius: 8px;">Enviar a: <b id="t-nombre-resumen" style="color:var(--verde);">...</b></p>
-                <input type="number" id="t-importe" placeholder="Cantidad R$">
-                <button class="btn-gato" onclick="confirmarTransferencia()">CONFIRMAR ENVÍO</button>
-            </div>
-            <div id="step-t-3" style="display:none; text-align:center;">
-                <h2 style="color:var(--verde);">¡ÉXITO!</h2>
-                <div id="comprobante-t" style="font-size:0.8rem; text-align:left; background:#000; padding:15px; border-radius:10px; margin-bottom:15px; font-family:monospace;"></div>
-                <button class="btn-gato" onclick="cerrarModales()">ENTENDIDO</button>
-            </div>
+            <h3>Transferir</h3>
+            <input type="text" id="t-alias" placeholder="Alias">
+            <button class="btn-gato" onclick="validarTransferencia()">Continuar</button>
             <button class="btn-gato btn-outline" onclick="cerrarModales()">Cerrar</button>
         </div>
     </div>
 
-    <div id="modal-sucursal" class="modal">
-        <div class="modal-content">
-            <h3>Retiro en Efectivo</h3>
-            <p style="font-size:0.9rem;">📍 1131 Calle 102, Guernica</p>
-            <label style="font-size:0.7rem; opacity:0.6;">PROGRAMAR TURNO:</label>
-            <input type="datetime-local" id="turno-fecha">
-            <button class="btn-gato" onclick="pedirTurno()">Solicitar Turno</button>
-            <button class="btn-gato btn-outline" onclick="cerrarModales()">Volver</button>
-        </div>
-    </div>
-
     <script>
-        // CONFIGURACIÓN FIREBASE (UQT PROJECT)
         const firebaseConfig = {
             apiKey: "AIzaSyA58MXpItx1F9zNnJbyeS_4FT_onYx9wig",
             authDomain: "uqt-virtual.firebaseapp.com",
@@ -162,210 +144,168 @@
         const db = firebase.firestore();
 
         let userData = null;
+        let adminAttempts = 0;
+        const ADMIN_PASS = "AdroCorp..##@@";
 
-        // --- SISTEMA DE AUTENTICACIÓN ---
+        // SEGURIDAD: Bloqueo de opción admin
+        function accesoAdmin() {
+            if (localStorage.getItem('admin_blocked') === 'true') {
+                alert("ACCESO BLOQUEADO PERMANENTEMENTE POR SEGURIDAD");
+                return;
+            }
 
-        async function crearCuenta() {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
-            if(!email || !pass) return alert("Completa los datos");
-
-            try {
-                await auth.createUserWithEmailAndPassword(email, pass);
-                // Si tiene éxito, checkAuth detectará el cambio y mostrará setup-profile
-            } catch (e) {
-                if(e.code === 'auth/email-already-in-use') {
-                    alert("Este email ya está en la red UQT. Inicia sesión normalmente y activa tu cuenta de Banco.");
-                } else {
-                    alert(e.message);
+            const clave = prompt("Ingrese Clave Maestra:");
+            if (clave === ADMIN_PASS) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'none';
+                document.getElementById('admin-screen').style.display = 'flex';
+                cargarAdminData();
+            } else {
+                adminAttempts++;
+                alert(`Clave incorrecta. Intento ${adminAttempts}/3`);
+                if (adminAttempts >= 3) {
+                    localStorage.setItem('admin_blocked', 'true');
+                    document.getElementById('btn-admin-gate').style.display = 'none';
                 }
             }
         }
 
-        async function iniciarSesion() {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
-            try {
-                await auth.signInWithEmailAndPassword(email, pass);
-            } catch (e) { alert("Error de acceso: Verifica tus datos"); }
+        // CARGAR UQT CARD
+        function validarUQT() {
+            const email = document.getElementById('uqt-email').value;
+            const monto = parseFloat(document.getElementById('uqt-monto').value);
+            if (!email || monto <= 0 || monto > userData.saldo) return alert("Datos inválidos o saldo insuficiente");
+            
+            document.getElementById('uqt-resumen-email').innerText = email;
+            document.getElementById('uqt-resumen-monto').innerText = monto;
+            document.getElementById('uqt-step-1').style.display = 'none';
+            document.getElementById('uqt-step-2').style.display = 'block';
         }
 
+        async function confirmarUQT() {
+            const email = document.getElementById('uqt-email').value;
+            const monto = parseFloat(document.getElementById('uqt-monto').value);
+            
+            const batch = db.batch();
+            const selfRef = db.collection('usuarios_banco').doc(auth.currentUser.uid);
+            
+            batch.update(selfRef, { saldo: firebase.firestore.FieldValue.increment(-monto) });
+            batch.set(db.collection('movimientos_banco').doc(), {
+                tipo: 'CARGA UQT CARD',
+                monto: monto,
+                de: userData.alias,
+                para: email,
+                uids: [auth.currentUser.uid],
+                fecha: new Date().toLocaleString()
+            });
+
+            await batch.commit();
+            alert("Carga de UQTCard completa");
+            cerrarModales();
+        }
+
+        // FUNCIONES ADMIN
+        async function adminCargarSaldo() {
+            const id = document.getElementById('adm-id').value;
+            const monto = parseFloat(document.getElementById('adm-monto').value);
+            
+            let query = db.collection('usuarios_banco').where('alias', '==', id);
+            if(id.startsWith('7777')) query = db.collection('usuarios_banco').where('cardNum', '==', id);
+            
+            const snap = await query.get();
+            if(snap.empty) return alert("Usuario no encontrado");
+            
+            await snap.docs[0].ref.update({ saldo: firebase.firestore.FieldValue.increment(monto) });
+            alert("Dinero inyectado");
+        }
+
+        async function adminBloquear() {
+            const id = document.getElementById('adm-block-id').value;
+            const tiempo = document.getElementById('adm-block-time').value;
+            
+            let query = db.collection('usuarios_banco').where('alias', '==', id);
+            if(id.startsWith('7777')) query = db.collection('usuarios_banco').where('cardNum', '==', id);
+            
+            const snap = await query.get();
+            if(snap.empty) return alert("Usuario no encontrado");
+
+            await db.collection('baneados').doc(snap.docs[0].id).set({
+                alias: snap.docs[0].data().alias,
+                cardEnd: snap.docs[0].data().cardNum.slice(-4),
+                email: snap.docs[0].data().email,
+                tiempo: tiempo
+            });
+            alert("Usuario baneado");
+            cargarAdminData();
+        }
+
+        async function cargarAdminData() {
+            // Cargar Baneados
+            const banSnap = await db.collection('baneados').get();
+            const banDiv = document.getElementById('lista-baneados');
+            banDiv.innerHTML = "<b>Usuarios Baneados:</b><br>";
+            banSnap.forEach(doc => {
+                const b = doc.data();
+                banDiv.innerHTML += `Alias: ${b.alias} | Tarjeta: ****${b.cardEnd} | ${b.email} <button onclick="quitarBan('${doc.id}')">[Quitar Ban]</button><br>`;
+            });
+
+            // Cargar Turnos
+            const turnSnap = await db.collection('turnos_banco').get();
+            const turnDiv = document.getElementById('lista-turnos-admin');
+            turnDiv.innerHTML = "";
+            turnSnap.forEach(doc => {
+                const t = doc.data();
+                turnDiv.innerHTML += `<div class="admin-item">
+                    ${t.nombre} ${t.apellido} | ${t.fecha} | ${t.alias} 
+                    <button onclick="borrarTurno('${doc.id}')">Borrar</button>
+                </div>`;
+            });
+        }
+
+        async function borrarTurno(id) { await db.collection('turnos_banco').doc(id).delete(); cargarAdminData(); }
+        async function quitarBan(id) { await db.collection('baneados').doc(id).delete(); cargarAdminData(); }
+
+        // AUTH & BOILERPLATE
         function checkAuth() {
+            if (localStorage.getItem('admin_blocked') === 'true') document.getElementById('btn-admin-gate').style.display = 'none';
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     const doc = await db.collection('usuarios_banco').doc(user.uid).get();
                     if (doc.exists) {
                         userData = doc.data();
                         document.getElementById('auth-screen').style.display = 'none';
-                        document.getElementById('setup-profile').style.display = 'none';
                         document.getElementById('app-screen').style.display = 'flex';
                         escucharDatos();
                     } else {
-                        // Usuario existe en Firebase pero no tiene perfil de BancoGato
                         document.getElementById('auth-screen').style.display = 'none';
                         document.getElementById('setup-profile').style.display = 'flex';
                     }
-                } else {
-                    document.getElementById('auth-screen').style.display = 'flex';
-                    document.getElementById('app-screen').style.display = 'none';
                 }
             });
-        }
-
-        async function completarRegistro() {
-            const nombre = document.getElementById('reg-nombre').value;
-            const apellido = document.getElementById('reg-apellido').value;
-            const alias = document.getElementById('reg-alias').value.toLowerCase().trim();
-
-            if(!nombre || !apellido || !alias) return alert("Faltan datos");
-            
-            // Verificar si el alias ya existe
-            const aliasCheck = await db.collection('alias_map').doc(alias).get();
-            if(aliasCheck.exists) return alert("Ese alias ya está pillado por otro gato");
-
-            const user = auth.currentUser;
-            const cardNum = "7777 " + Math.floor(1000+Math.random()*8999) + " " + Math.floor(1000+Math.random()*8999) + " " + Math.floor(1000+Math.random()*8999);
-            
-            const newUserData = {
-                uid: user.uid,
-                email: user.email,
-                nombre, apellido, alias,
-                saldo: 0,
-                cardNum,
-                cvv: Math.floor(100 + Math.random() * 899),
-                fechaCreacion: new Date()
-            };
-
-            await db.collection('usuarios_banco').doc(user.uid).set(newUserData);
-            await db.collection('alias_map').doc(alias).set({ uid: user.uid, nombreCompleto: `${nombre} ${apellido}` });
-            
-            location.reload();
         }
 
         function escucharDatos() {
             db.collection('usuarios_banco').doc(auth.currentUser.uid).onSnapshot(doc => {
                 userData = doc.data();
-                actualizarUI();
+                document.getElementById('user-name').innerText = userData.nombre;
+                document.getElementById('user-alias').innerText = userData.alias;
+                document.getElementById('saldo-val').innerText = userData.saldo.toLocaleString();
+                document.getElementById('card-number').innerText = userData.cardNum;
+                document.getElementById('card-holder').innerText = userData.nombre + " " + userData.apellido;
+                document.getElementById('card-cvv').innerText = userData.cvv;
             });
-        }
-
-        function actualizarUI() {
-            document.getElementById('user-name').innerText = userData.nombre;
-            document.getElementById('user-alias').innerText = userData.alias;
-            document.getElementById('saldo-val').innerText = userData.saldo.toLocaleString();
-            document.getElementById('card-number').innerText = userData.cardNum;
-            document.getElementById('card-holder').innerText = `${userData.nombre} ${userData.apellido}`;
-            document.getElementById('card-cvv').innerText = userData.cvv;
-            cargarMovimientos();
-        }
-
-        // --- TRANSACCIONES CON MÁXIMA SEGURIDAD (BATCH) ---
-
-        let destTemporal = null;
-
-        async function validarTransferencia() {
-            const alias = document.getElementById('t-alias').value.toLowerCase().trim();
-            if(alias === userData.alias) return alert("No puedes enviarte a ti mismo, crack");
-
-            const snap = await db.collection('alias_map').doc(alias).get();
-            if(!snap.exists) return alert("Ese alias no existe en nuestra base");
-            
-            destTemporal = { uid: snap.data().uid, nombre: snap.data().nombreCompleto, alias };
-            document.getElementById('t-nombre-resumen').innerText = destTemporal.nombre;
-            document.getElementById('step-t-1').style.display = 'none';
-            document.getElementById('step-t-2').style.display = 'block';
-        }
-
-        async function confirmarTransferencia() {
-            const monto = parseFloat(document.getElementById('t-importe').value);
-            if(isNaN(monto) || monto <= 0) return alert("Monto no válido");
-            if(monto > userData.saldo) return alert("Saldo insuficiente");
-
-            // SEGURIDAD: Operación Atómica (Batch)
-            const batch = db.batch();
-            const miRef = db.collection('usuarios_banco').doc(auth.currentUser.uid);
-            const suRef = db.collection('usuarios_banco').doc(destTemporal.uid);
-            const movRef = db.collection('movimientos_banco').doc();
-
-            batch.update(miRef, { saldo: firebase.firestore.FieldValue.increment(-monto) });
-            batch.update(suRef, { saldo: firebase.firestore.FieldValue.increment(monto) });
-
-            const tick = Date.now().toString(36).toUpperCase();
-            const infoMov = {
-                tipo: 'TRANSFERENCIA',
-                monto,
-                de: userData.alias,
-                para: destTemporal.alias,
-                uids: [auth.currentUser.uid, destTemporal.uid],
-                fecha: new Date().toLocaleString(),
-                ref: "BG-" + tick
-            };
-            batch.set(movRef, infoMov);
-
-            try {
-                await batch.commit();
-                document.getElementById('step-t-2').style.display = 'none';
-                document.getElementById('step-t-3').style.display = 'block';
-                document.getElementById('comprobante-t').innerHTML = `
-                    FECHA: ${infoMov.fecha}<br>
-                    REF: ${infoMov.ref}<br>
-                    DESTINO: ${destTemporal.nombre}<br>
-                    MONTO: R$ ${monto}
-                `;
-            } catch (e) { alert("Error crítico en la transacción"); }
-        }
-
-        async function cargarMovimientos() {
-            const snap = await db.collection('movimientos_banco')
-                .where('uids', 'array-contains', auth.currentUser.uid)
-                .orderBy('fecha', 'desc').limit(8).get();
-            
-            const list = document.getElementById('lista-movimientos');
-            list.innerHTML = "";
-            
-            snap.forEach(doc => {
-                const m = doc.data();
-                const esGasto = m.de === userData.alias;
-                list.innerHTML += `
-                    <div class="movimiento-item">
-                        <div>
-                            <div style="font-size:0.8rem; font-weight:bold;">${esGasto ? 'A: ' + m.para : 'DE: ' + m.de}</div>
-                            <div style="font-size:0.6rem; opacity:0.5;">${m.fecha}</div>
-                        </div>
-                        <div style="color:${esGasto ? 'var(--rojo)' : 'var(--verde)'}; font-weight:bold;">
-                            ${esGasto ? '-' : '+'} R$ ${m.monto}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        async function pedirTurno() {
-            const fecha = document.getElementById('turno-fecha').value;
-            if(!fecha) return alert("Elige cuándo irás");
-            await db.collection('turnos_banco').add({
-                alias: userData.alias,
-                nombre: userData.nombre + " " + userData.apellido,
-                fecha,
-                status: 'Pendiente de Aprobación'
-            });
-            alert("Turno solicitado. Preséntate en 1131 Calle 102 con tu DNI.");
-            cerrarModales();
-        }
-
-        function accesoAdmin() {
-            const clave = prompt("Clave de Seguridad Nivel 5:");
-            if(clave === "BancoGato2012@@__") {
-                alert("Acceso Autorizado. Redirigiendo a Bóveda Central...");
-                // Aquí podrías poner el link a tu panel de control
-            } else { alert("ACCESO DENEGADO"); }
         }
 
         function abrirModal(id) { document.getElementById(id).style.display = 'flex'; }
         function cerrarModales() { 
-            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-            document.getElementById('step-t-1').style.display = 'block';
-            document.getElementById('step-t-2').style.display = 'none';
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
+            document.getElementById('uqt-step-1').style.display = 'block';
+            document.getElementById('uqt-step-2').style.display = 'none';
+        }
+        async function iniciarSesion() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+            try { await auth.signInWithEmailAndPassword(email, pass); } catch (e) { alert("Error"); }
         }
         function logout() { auth.signOut().then(() => location.reload()); }
     </script>
