@@ -3,172 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BancoGato | Part of Adro Corp.</title>
+    <title>BancoGato | Seguridad de Elite</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        :root { --verde: #98ff98; --verde-dark: #76d376; --negro: #0a0a0a; --panel: #161616; --texto: #ffffff; }
+        :root { --verde: #98ff98; --verde-dark: #76d376; --negro: #0a0a0a; --panel: #161616; --texto: #ffffff; --rojo: #ff4d4d; }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--negro); color: var(--texto); overflow-x: hidden; }
         
         /* UI Elements */
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; background: #222; color: var(--verde); border: 1px solid #333; outline: none; box-sizing: border-box; }
-        .btn-gato { background: var(--verde); color: #000; border: none; padding: 14px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 8px; transition: 0.3s; text-transform: uppercase; }
-        .btn-gato:active { transform: scale(0.95); }
+        input, select { width: 100%; padding: 14px; margin: 8px 0; border-radius: 10px; background: #1a1a1a; color: var(--verde); border: 1px solid #333; outline: none; box-sizing: border-box; font-size: 1rem; }
+        input:focus { border-color: var(--verde); box-shadow: 0 0 5px var(--verde); }
+        .btn-gato { background: var(--verde); color: #000; border: none; padding: 16px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 10px; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-gato:hover { background: var(--verde-dark); }
+        .btn-gato:active { transform: scale(0.98); }
         .btn-outline { background: transparent; border: 1px solid var(--verde); color: var(--verde); margin-top: 10px; }
 
-        /* Pantallas */
-        #auth-screen, #app-screen, #admin-screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; }
-        .logo-img { max-width: 250px; margin-bottom: 20px; border-radius: 10px; }
+        /* Estructura */
+        #auth-screen, #app-screen, #setup-profile { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; }
+        .logo-img { max-width: 180px; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(152,255,152,0.3)); }
+        .container { width: 100%; max-width: 400px; }
 
-        /* DashBoard */
-        .card-saldo { background: linear-gradient(135deg, #1a1a1a, #000); width: 100%; max-width: 400px; padding: 20px; border-radius: 20px; border: 1px solid #333; text-align: center; margin-bottom: 20px; }
-        .r-money { font-size: 2.5rem; font-weight: bold; color: var(--verde); }
+        /* Dashboard */
+        .card-saldo { background: linear-gradient(145deg, #161616, #000); padding: 25px; border-radius: 24px; border: 1px solid #222; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .r-money { font-size: 2.8rem; font-weight: 800; color: var(--verde); text-shadow: 0 0 10px rgba(152,255,152,0.2); }
         
-        .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 400px; }
-        .mini-btn { padding: 10px; font-size: 0.8rem; }
+        .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .mini-btn { padding: 12px; font-size: 0.85rem; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
 
         /* GatoCard */
-        .gatocard { background: linear-gradient(45deg, #222, #111); width: 100%; max-width: 350px; height: 200px; border-radius: 15px; padding: 20px; position: relative; border: 1px solid var(--verde); margin-top: 20px; box-shadow: 0 0 15px rgba(152, 255, 152, 0.2); }
-        .chip { width: 40px; height: 30px; background: #555; border-radius: 5px; margin-bottom: 20px; }
-        .card-num { font-family: monospace; font-size: 1.2rem; letter-spacing: 2px; }
-        .card-info { display: flex; justify-content: space-between; margin-top: 40px; font-size: 0.8rem; }
+        .gatocard { background: linear-gradient(135deg, #222 0%, #0a0a0a 100%); width: 100%; height: 210px; border-radius: 18px; padding: 25px; position: relative; border: 1px solid rgba(152,255,152,0.3); margin-top: 20px; box-sizing: border-box; overflow: hidden; }
+        .gatocard::after { content: "BANCO GATO"; position: absolute; right: -20px; bottom: 10px; font-size: 3rem; opacity: 0.03; font-weight: 900; transform: rotate(-10deg); }
+        .chip { width: 45px; height: 35px; background: linear-gradient(to bottom right, #ffd700, #b8860b); border-radius: 6px; margin-bottom: 30px; }
+        .card-num { font-family: 'Courier New', monospace; font-size: 1.3rem; letter-spacing: 2px; color: #eee; }
+        .card-info { display: flex; justify-content: space-between; margin-top: 45px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
 
         /* Modales */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; padding: 20px; overflow-y: auto; }
-        .modal-content { background: var(--panel); padding: 20px; border-radius: 15px; border: 1px solid var(--verde); max-width: 400px; margin: auto; }
-
-        .movimiento-item { padding: 10px; border-bottom: 1px solid #333; font-size: 0.9rem; display: flex; justify-content: space-between; }
-        .tag-sucursal { color: var(--verde); font-weight: bold; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; padding: 20px; align-items: center; justify-content: center; }
+        .modal-content { background: var(--panel); padding: 30px; border-radius: 20px; border: 1px solid var(--verde); width: 100%; max-width: 380px; position: relative; }
+        
+        .movimiento-item { padding: 15px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+        .tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; background: #333; }
     </style>
 </head>
 <body onload="checkAuth()">
 
     <div id="auth-screen">
         <img src="https://i.postimg.cc/zXxLcyCv/1778560410678-(1).jpg" class="logo-img">
-        <h3 id="auth-title">Buenas, selecciona tu opción</h3>
+        <h2 style="margin-bottom: 5px;">BancoGato</h2>
+        <p style="opacity: 0.6; margin-bottom: 30px; font-size: 0.9rem;">Seguridad en cada Ronroneo</p>
         
-        <div id="login-container" style="width: 100%; max-width: 320px;">
-            <div id="auth-inputs">
-                <input type="email" id="email" placeholder="Email">
-                <input type="password" id="pass" placeholder="Contraseña">
-            </div>
-            
-            <div id="register-only" style="display:none;">
-                <input type="text" id="reg-nombre" placeholder="Nombre">
-                <input type="text" id="reg-apellido" placeholder="Apellido">
-                <input type="text" id="reg-alias" placeholder="Alias (Ej: gato.facha)">
-            </div>
+        <div class="container">
+            <input type="email" id="email" placeholder="Email de UQT">
+            <input type="password" id="pass" placeholder="Tu Contraseña">
 
-            <button class="btn-gato" id="btn-main-auth" onclick="iniciarSesion()">Iniciar Sesión</button>
-            <button class="btn-gato btn-outline" id="btn-switch" onclick="toggleAuth()">Crear cuenta</button>
-            <button class="btn-gato btn-outline" style="border-color:#444; color:#888;" onclick="accesoAdmin()">Admin</button>
+            <button class="btn-gato" id="btn-login" onclick="iniciarSesion()">Iniciar Sesión</button>
+            <button class="btn-gato btn-outline" id="btn-register" onclick="crearCuenta()">Crear Cuenta</button>
+            <button class="btn-gato btn-outline" style="border-color:#333; color:#555;" onclick="accesoAdmin()">Acceso Admin</button>
+        </div>
+    </div>
+
+    <div id="setup-profile" style="display:none;">
+        <h3>Finaliza tu Registro</h3>
+        <p style="font-size: 0.8rem; opacity: 0.7; text-align: center;">Vemos que eres nuevo en el Banco. <br>¡Configura tu identidad bancaria!</p>
+        <div class="container">
+            <input type="text" id="reg-nombre" placeholder="Nombre">
+            <input type="text" id="reg-apellido" placeholder="Apellido">
+            <input type="text" id="reg-alias" placeholder="Crea tu Alias (ej: michi.rico)">
+            <button class="btn-gato" onclick="completarRegistro()">Activar mi Cuenta</button>
         </div>
     </div>
 
     <div id="app-screen" style="display:none;">
-        <div style="width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center;">
-            <span>Hola, <b id="user-name">...</b></span>
-            <button onclick="logout()" style="background:none; border:none; color:var(--verde); cursor:pointer;">Salir</button>
-        </div>
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <span>Michi: <b id="user-name" style="color: var(--verde);">...</b></span>
+                <button onclick="logout()" style="background:none; border:none; color:var(--rojo); cursor:pointer; font-weight:bold;">SALIR</button>
+            </div>
 
-        <div class="card-saldo">
-            <p style="margin:0; font-size: 0.8rem; opacity: 0.7;">Tu dinero disponible</p>
-            <div class="r-money">R$ <span id="saldo-val">0.00</span></div>
-            <p style="font-size: 0.7rem;">Alias: <b id="user-alias">...</b></p>
-        </div>
+            <div class="card-saldo">
+                <p style="margin:0; font-size: 0.8rem; opacity: 0.6; letter-spacing: 1px;">SALDO DISPONIBLE</p>
+                <div class="r-money">R$ <span id="saldo-val">0.00</span></div>
+                <div class="tag">ALIAS: <span id="user-alias">...</span></div>
+            </div>
 
-        <div class="grid-buttons">
-            <button class="btn-gato mini-btn" onclick="abrirModal('modal-transferir')">💸 Transferir</button>
-            <button class="btn-gato mini-btn" onclick="abrirModal('modal-pedir')">🤝 Pedir R$</button>
-            <button class="btn-gato mini-btn" onclick="abrirModal('modal-prestamo')">🏦 Préstamo</button>
-            <button class="btn-gato mini-btn" onclick="abrirModal('modal-sucursal')">📍 Sucursal</button>
-            <button class="btn-gato mini-btn" onclick="alert('Cargando UQTCard...')">💳 UQTCard</button>
-            <button class="btn-gato mini-btn" style="opacity: 0.5;">📡 Wifi (Próx.)</button>
-        </div>
+            <div class="grid-buttons">
+                <button class="btn-gato mini-btn" onclick="abrirModal('modal-transferir')"><span>💸</span> Transferir</button>
+                <button class="btn-gato mini-btn" onclick="abrirModal('modal-pedir')"><span>🤝</span> Pedir R$</button>
+                <button class="btn-gato mini-btn" onclick="abrirModal('modal-prestamo')"><span>🏦</span> Préstamo</button>
+                <button class="btn-gato mini-btn" onclick="abrirModal('modal-sucursal')"><span>📍</span> Sucursal</button>
+            </div>
 
-        <div class="sec-title" style="margin-top:30px; width:100%; max-width:400px; color:var(--verde); font-weight:bold;">TU GATOCARD</div>
-        <div class="gatocard">
-            <div class="chip"></div>
-            <div class="card-num" id="card-number">7777 0000 0000 0000</div>
-            <div class="card-info">
-                <div>
-                    <div style="opacity:0.6; font-size:0.6rem;">TITULAR</div>
-                    <div id="card-holder">NOMBRE APELLIDO</div>
-                </div>
-                <div style="text-align:right;">
-                    <div style="opacity:0.6; font-size:0.6rem;">CVV</div>
-                    <div id="card-cvv">***</div>
+            <div class="gatocard">
+                <div class="chip"></div>
+                <div class="card-num" id="card-number">7777 **** **** ****</div>
+                <div class="card-info">
+                    <div>
+                        <div style="opacity:0.5; font-size:0.6rem;">TITULAR</div>
+                        <div id="card-holder">...</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="opacity:0.5; font-size:0.6rem;">CVV</div>
+                        <div id="card-cvv">***</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="sec-title" style="margin-top:30px; width:100%; max-width:400px; color:var(--verde); font-weight:bold;">MOVIMIENTOS</div>
-        <div id="lista-movimientos" style="width:100%; max-width:400px; background:var(--panel); border-radius:10px; margin-top:10px;">
-            <div class="movimiento-item">Cargando movimientos...</div>
+            <h4 style="color: var(--verde); margin-top: 30px;">MOVIMIENTOS RECIENTES</h4>
+            <div id="lista-movimientos" style="background:var(--panel); border-radius:15px; margin-bottom: 100px;">
+                </div>
         </div>
     </div>
 
     <div id="modal-transferir" class="modal">
         <div class="modal-content">
-            <h3>Transferir Dinero</h3>
+            <h3 style="margin-top:0;">Transferencia Segura</h3>
             <div id="step-t-1">
                 <input type="text" id="t-alias" placeholder="Alias del destinatario">
                 <button class="btn-gato" onclick="validarTransferencia()">Siguiente</button>
             </div>
             <div id="step-t-2" style="display:none;">
-                <p>Destinatario: <b id="t-nombre-resumen">...</b></p>
-                <input type="number" id="t-importe" placeholder="Importe R$">
-                <button class="btn-gato" onclick="confirmarTransferencia()">Confirmar Transferencia</button>
+                <p style="background: #000; padding: 10px; border-radius: 8px;">Enviar a: <b id="t-nombre-resumen" style="color:var(--verde);">...</b></p>
+                <input type="number" id="t-importe" placeholder="Cantidad R$">
+                <button class="btn-gato" onclick="confirmarTransferencia()">CONFIRMAR ENVÍO</button>
             </div>
             <div id="step-t-3" style="display:none; text-align:center;">
-                <h2 style="color:var(--verde);">¡Transferido!</h2>
-                <div id="comprobante-t" style="font-size:0.8rem; text-align:left; background:#111; padding:10px;"></div>
-                <button class="btn-gato btn-outline" onclick="cerrarModales()">Cerrar</button>
+                <h2 style="color:var(--verde);">¡ÉXITO!</h2>
+                <div id="comprobante-t" style="font-size:0.8rem; text-align:left; background:#000; padding:15px; border-radius:10px; margin-bottom:15px; font-family:monospace;"></div>
+                <button class="btn-gato" onclick="cerrarModales()">ENTENDIDO</button>
             </div>
-            <button class="btn-gato btn-outline" onclick="cerrarModales()">Cancelar</button>
-        </div>
-    </div>
-
-    <div id="modal-pedir" class="modal">
-        <div class="modal-content">
-            <h3>Pedir Dinero</h3>
-            <input type="text" id="p-alias" placeholder="Alias">
-            <input type="number" id="p-importe" placeholder="Importe R$">
-            <label style="font-size:0.7rem;">¿Cuándo lo devuelves?</label>
-            <input type="datetime-local" id="p-fecha">
-            <button class="btn-gato" onclick="enviarSolicitud()">Enviar Solicitud</button>
-            <button class="btn-gato btn-outline" onclick="cerrarModales()">Cancelar</button>
+            <button class="btn-gato btn-outline" onclick="cerrarModales()">Cerrar</button>
         </div>
     </div>
 
     <div id="modal-sucursal" class="modal">
         <div class="modal-content">
-            <h3>Retiro en Sucursal</h3>
-            <p style="font-size:0.8rem;">Sucursal Única:</p>
-            <div style="background:#111; padding:10px; border-radius:8px; margin-bottom:10px;">
-                <span class="tag-sucursal">📍 1131 Calle 102, Guernica</span>
-            </div>
-            <label style="font-size:0.7rem;">Selecciona tu turno:</label>
+            <h3>Retiro en Efectivo</h3>
+            <p style="font-size:0.9rem;">📍 1131 Calle 102, Guernica</p>
+            <label style="font-size:0.7rem; opacity:0.6;">PROGRAMAR TURNO:</label>
             <input type="datetime-local" id="turno-fecha">
             <button class="btn-gato" onclick="pedirTurno()">Solicitar Turno</button>
-            <p style="font-size:0.6rem; opacity:0.5; margin-top:10px;">* Sujeto a aprobación de administración.</p>
             <button class="btn-gato btn-outline" onclick="cerrarModales()">Volver</button>
         </div>
     </div>
 
-    <div id="modal-prestamo" class="modal">
-        <div class="modal-content">
-            <h3>Préstamo BancoGato</h3>
-            <p style="font-size:0.8rem;">Crédito inmediato según historial.</p>
-            <input type="number" id="pre-importe" placeholder="Importe solicitado">
-            <button class="btn-gato" onclick="solicitarPrestamo()">Pedir al Banco</button>
-            <button class="btn-gato btn-outline" onclick="cerrarModales()">Cerrar</button>
-        </div>
-    </div>
-
     <script>
-        // CONFIGURACIÓN FIREBASE
+        // CONFIGURACIÓN FIREBASE (UQT PROJECT)
         const firebaseConfig = {
             apiKey: "AIzaSyA58MXpItx1F9zNnJbyeS_4FT_onYx9wig",
             authDomain: "uqt-virtual.firebaseapp.com",
@@ -182,61 +162,90 @@
         const db = firebase.firestore();
 
         let userData = null;
-        let isRegister = false;
 
-        // AUTH LOGIC
-        function toggleAuth() {
-            isRegister = !isRegister;
-            document.getElementById('register-only').style.display = isRegister ? 'block' : 'none';
-            document.getElementById('auth-title').innerText = isRegister ? 'Crea tu cuenta de BancoGato' : 'Buenas, selecciona tu opción';
-            document.getElementById('btn-main-auth').innerText = isRegister ? 'Crear Cuenta' : 'Iniciar Sesión';
-            document.getElementById('btn-switch').innerText = isRegister ? 'Ya tengo cuenta' : 'Crear cuenta';
+        // --- SISTEMA DE AUTENTICACIÓN ---
+
+        async function crearCuenta() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+            if(!email || !pass) return alert("Completa los datos");
+
+            try {
+                await auth.createUserWithEmailAndPassword(email, pass);
+                // Si tiene éxito, checkAuth detectará el cambio y mostrará setup-profile
+            } catch (e) {
+                if(e.code === 'auth/email-already-in-use') {
+                    alert("Este email ya está en la red UQT. Inicia sesión normalmente y activa tu cuenta de Banco.");
+                } else {
+                    alert(e.message);
+                }
+            }
         }
 
         async function iniciarSesion() {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('pass').value;
-
-            if (isRegister) {
-                const nombre = document.getElementById('reg-nombre').value;
-                const apellido = document.getElementById('reg-apellido').value;
-                const alias = document.getElementById('reg-alias').value.toLowerCase();
-
-                if(!nombre || !apellido || !alias) return alert("Completa todos los campos");
-
-                try {
-                    const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
-                    const uid = userCredential.user.uid;
-                    const cardNum = "7777 " + Math.floor(1000 + Math.random() * 9000) + " " + Math.floor(1000 + Math.random() * 9000) + " " + Math.floor(1000 + Math.random() * 9000);
-                    
-                    await db.collection('usuarios_banco').doc(uid).set({
-                        nombre, apellido, alias, email,
-                        saldo: 0,
-                        cardNum,
-                        cvv: Math.floor(100 + Math.random() * 900),
-                        uid
-                    });
-                    // Guardar alias para búsqueda rápida
-                    await db.collection('alias_map').doc(alias).set({ uid, nombreCompleto: `${nombre} ${apellido}` });
-                    location.reload();
-                } catch (e) { alert(e.message); }
-            } else {
-                try {
-                    await auth.signInWithEmailAndPassword(email, pass);
-                } catch (e) { alert("Error: Datos incorrectos"); }
-            }
+            try {
+                await auth.signInWithEmailAndPassword(email, pass);
+            } catch (e) { alert("Error de acceso: Verifica tus datos"); }
         }
 
         function checkAuth() {
-            auth.onAuthStateChanged(user => {
+            auth.onAuthStateChanged(async (user) => {
                 if (user) {
-                    db.collection('usuarios_banco').doc(user.uid).onSnapshot(doc => {
+                    const doc = await db.collection('usuarios_banco').doc(user.uid).get();
+                    if (doc.exists) {
                         userData = doc.data();
                         document.getElementById('auth-screen').style.display = 'none';
+                        document.getElementById('setup-profile').style.display = 'none';
                         document.getElementById('app-screen').style.display = 'flex';
-                        actualizarUI();
-                    });
+                        escucharDatos();
+                    } else {
+                        // Usuario existe en Firebase pero no tiene perfil de BancoGato
+                        document.getElementById('auth-screen').style.display = 'none';
+                        document.getElementById('setup-profile').style.display = 'flex';
+                    }
+                } else {
+                    document.getElementById('auth-screen').style.display = 'flex';
+                    document.getElementById('app-screen').style.display = 'none';
                 }
+            });
+        }
+
+        async function completarRegistro() {
+            const nombre = document.getElementById('reg-nombre').value;
+            const apellido = document.getElementById('reg-apellido').value;
+            const alias = document.getElementById('reg-alias').value.toLowerCase().trim();
+
+            if(!nombre || !apellido || !alias) return alert("Faltan datos");
+            
+            // Verificar si el alias ya existe
+            const aliasCheck = await db.collection('alias_map').doc(alias).get();
+            if(aliasCheck.exists) return alert("Ese alias ya está pillado por otro gato");
+
+            const user = auth.currentUser;
+            const cardNum = "7777 " + Math.floor(1000+Math.random()*8999) + " " + Math.floor(1000+Math.random()*8999) + " " + Math.floor(1000+Math.random()*8999);
+            
+            const newUserData = {
+                uid: user.uid,
+                email: user.email,
+                nombre, apellido, alias,
+                saldo: 0,
+                cardNum,
+                cvv: Math.floor(100 + Math.random() * 899),
+                fechaCreacion: new Date()
+            };
+
+            await db.collection('usuarios_banco').doc(user.uid).set(newUserData);
+            await db.collection('alias_map').doc(alias).set({ uid: user.uid, nombreCompleto: `${nombre} ${apellido}` });
+            
+            location.reload();
+        }
+
+        function escucharDatos() {
+            db.collection('usuarios_banco').doc(auth.currentUser.uid).onSnapshot(doc => {
+                userData = doc.data();
+                actualizarUI();
             });
         }
 
@@ -245,18 +254,21 @@
             document.getElementById('user-alias').innerText = userData.alias;
             document.getElementById('saldo-val').innerText = userData.saldo.toLocaleString();
             document.getElementById('card-number').innerText = userData.cardNum;
-            document.getElementById('card-holder').innerText = (userData.nombre + " " + userData.apellido).toUpperCase();
+            document.getElementById('card-holder').innerText = `${userData.nombre} ${userData.apellido}`;
             document.getElementById('card-cvv').innerText = userData.cvv;
             cargarMovimientos();
         }
 
-        // LOGICA TRANSACCIONES
+        // --- TRANSACCIONES CON MÁXIMA SEGURIDAD (BATCH) ---
+
         let destTemporal = null;
 
         async function validarTransferencia() {
-            const alias = document.getElementById('t-alias').value.toLowerCase();
+            const alias = document.getElementById('t-alias').value.toLowerCase().trim();
+            if(alias === userData.alias) return alert("No puedes enviarte a ti mismo, crack");
+
             const snap = await db.collection('alias_map').doc(alias).get();
-            if(!snap.exists) return alert("Alias no encontrado");
+            if(!snap.exists) return alert("Ese alias no existe en nuestra base");
             
             destTemporal = { uid: snap.data().uid, nombre: snap.data().nombreCompleto, alias };
             document.getElementById('t-nombre-resumen').innerText = destTemporal.nombre;
@@ -266,57 +278,61 @@
 
         async function confirmarTransferencia() {
             const monto = parseFloat(document.getElementById('t-importe').value);
-            if(monto <= 0 || monto > userData.saldo) return alert("Saldo insuficiente o monto inválido");
+            if(isNaN(monto) || monto <= 0) return alert("Monto no válido");
+            if(monto > userData.saldo) return alert("Saldo insuficiente");
 
+            // SEGURIDAD: Operación Atómica (Batch)
             const batch = db.batch();
-            const selfRef = db.collection('usuarios_banco').doc(auth.currentUser.uid);
-            const destRef = db.collection('usuarios_banco').doc(destTemporal.uid);
+            const miRef = db.collection('usuarios_banco').doc(auth.currentUser.uid);
+            const suRef = db.collection('usuarios_banco').doc(destTemporal.uid);
+            const movRef = db.collection('movimientos_banco').doc();
 
-            batch.update(selfRef, { saldo: firebase.firestore.FieldValue.increment(-monto) });
-            batch.update(destRef, { saldo: firebase.firestore.FieldValue.increment(monto) });
+            batch.update(miRef, { saldo: firebase.firestore.FieldValue.increment(-monto) });
+            batch.update(suRef, { saldo: firebase.firestore.FieldValue.increment(monto) });
 
-            const movId = "BG-" + Math.random().toString(36).substr(2, 9).toUpperCase();
-            const movData = {
-                tipo: 'Transferencia',
+            const tick = Date.now().toString(36).toUpperCase();
+            const infoMov = {
+                tipo: 'TRANSFERENCIA',
                 monto,
                 de: userData.alias,
                 para: destTemporal.alias,
-                fecha: new Date().toLocaleString()
+                uids: [auth.currentUser.uid, destTemporal.uid],
+                fecha: new Date().toLocaleString(),
+                ref: "BG-" + tick
             };
+            batch.set(movRef, infoMov);
 
-            batch.set(db.collection('movimientos_banco').doc(), { ...movData, uids: [auth.currentUser.uid, destTemporal.uid] });
-
-            await batch.commit();
-            
-            document.getElementById('step-t-2').style.display = 'none';
-            document.getElementById('step-t-3').style.display = 'block';
-            document.getElementById('comprobante-t').innerHTML = `
-                ID: ${movId}<br>
-                A: ${destTemporal.nombre}<br>
-                Alias: ${destTemporal.alias}<br>
-                Monto: R$ ${monto}
-            `;
+            try {
+                await batch.commit();
+                document.getElementById('step-t-2').style.display = 'none';
+                document.getElementById('step-t-3').style.display = 'block';
+                document.getElementById('comprobante-t').innerHTML = `
+                    FECHA: ${infoMov.fecha}<br>
+                    REF: ${infoMov.ref}<br>
+                    DESTINO: ${destTemporal.nombre}<br>
+                    MONTO: R$ ${monto}
+                `;
+            } catch (e) { alert("Error crítico en la transacción"); }
         }
 
         async function cargarMovimientos() {
             const snap = await db.collection('movimientos_banco')
                 .where('uids', 'array-contains', auth.currentUser.uid)
-                .limit(10).get();
+                .orderBy('fecha', 'desc').limit(8).get();
             
-            const container = document.getElementById('lista-movimientos');
-            container.innerHTML = "";
-            if(snap.empty) container.innerHTML = "<div class='movimiento-item'>Sin movimientos</div>";
-
+            const list = document.getElementById('lista-movimientos');
+            list.innerHTML = "";
+            
             snap.forEach(doc => {
                 const m = doc.data();
                 const esGasto = m.de === userData.alias;
-                container.innerHTML += `
+                list.innerHTML += `
                     <div class="movimiento-item">
                         <div>
-                            <b>${m.tipo}</b><br>
-                            <small>${esGasto ? 'A: ' + m.para : 'De: ' + m.de}</small>
+                            <div style="font-size:0.8rem; font-weight:bold;">${esGasto ? 'A: ' + m.para : 'DE: ' + m.de}</div>
+                            <div style="font-size:0.6rem; opacity:0.5;">${m.fecha}</div>
                         </div>
-                        <div style="color: ${esGasto ? '#ff4444' : 'var(--verde)'}">
+                        <div style="color:${esGasto ? 'var(--rojo)' : 'var(--verde)'}; font-weight:bold;">
                             ${esGasto ? '-' : '+'} R$ ${m.monto}
                         </div>
                     </div>
@@ -324,19 +340,25 @@
             });
         }
 
-        // TURNOS Y PRESTAMOS
         async function pedirTurno() {
             const fecha = document.getElementById('turno-fecha').value;
-            if(!fecha) return alert("Selecciona fecha y hora");
+            if(!fecha) return alert("Elige cuándo irás");
             await db.collection('turnos_banco').add({
-                usuario: userData.alias,
+                alias: userData.alias,
                 nombre: userData.nombre + " " + userData.apellido,
                 fecha,
-                estado: 'Pendiente',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                status: 'Pendiente de Aprobación'
             });
-            alert("Turno solicitado. Espera aprobación en sucursal.");
+            alert("Turno solicitado. Preséntate en 1131 Calle 102 con tu DNI.");
             cerrarModales();
+        }
+
+        function accesoAdmin() {
+            const clave = prompt("Clave de Seguridad Nivel 5:");
+            if(clave === "BancoGato2012@@__") {
+                alert("Acceso Autorizado. Redirigiendo a Bóveda Central...");
+                // Aquí podrías poner el link a tu panel de control
+            } else { alert("ACCESO DENEGADO"); }
         }
 
         function abrirModal(id) { document.getElementById(id).style.display = 'flex'; }
@@ -344,19 +366,8 @@
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
             document.getElementById('step-t-1').style.display = 'block';
             document.getElementById('step-t-2').style.display = 'none';
-            document.getElementById('step-t-3').style.display = 'none';
         }
-
         function logout() { auth.signOut().then(() => location.reload()); }
-
-        function accesoAdmin() {
-            const pass = prompt("Clave Admin:");
-            if(pass === "BancoGato2012@@__") {
-                alert("Acceso concedido al panel central (Próximamente disponible)");
-            } else {
-                alert("Clave incorrecta");
-            }
-        }
     </script>
 </body>
 </html>
