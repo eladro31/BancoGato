@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BancoGato | V 1.1 Corporativo</title>
+    <title>BancoGato | V 1.1 </title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -28,6 +28,10 @@
         .chip { width: 45px; height: 35px; background: linear-gradient(to bottom right, #ffd700, #b8860b); border-radius: 6px; margin-bottom: 30px; }
         .card-num { font-family: 'Courier New', monospace; font-size: 1.2rem; letter-spacing: 2px; }
 
+        /* Admin Styles */
+        .admin-box { background: #111; border: 1px solid #333; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .admin-item { border-bottom: 1px solid #222; padding: 10px 0; font-size: 0.8rem; }
+
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: var(--panel); padding: 30px; border-radius: 20px; border: 1px solid var(--verde); width: 100%; max-width: 380px; }
     </style>
@@ -35,7 +39,7 @@
 <body onload="checkAuth()">
 
     <div id="auth-screen">
-        <img src="https://i.postimg.cc/zXxLcyCv/1778560410678-(1).jpg" id="logo-gato" onclick="tripleClic()" style="max-width: 150px; margin-bottom: 20px; cursor: pointer;">
+        <img src="https://i.postimg.cc/zXxLcyCv/1778560410678-(1).jpg" onclick="atajoRescate()" style="max-width: 150px; margin-bottom: 20px; cursor: pointer;">
         <h2>BancoGato</h2>
         <div class="container">
             <input type="email" id="email" placeholder="Email de UQT">
@@ -47,12 +51,12 @@
     </div>
 
     <div id="setup-profile" style="display:none;">
+        <h2>Crea tu Perfil Gato</h2>
         <div class="container">
-            <h2>Configura tu Perfil</h2>
-            <input type="text" id="reg-nombre" placeholder="Tu Nombre">
-            <input type="text" id="reg-apellido" placeholder="Tu Apellido">
-            <input type="text" id="reg-alias" placeholder="Alias (Ej: GatoPerez)">
-            <button class="btn-gato" onclick="completarRegistro()">Terminar Registro</button>
+            <input type="text" id="reg-nombre" placeholder="Nombre">
+            <input type="text" id="reg-apellido" placeholder="Apellido">
+            <input type="text" id="reg-alias" placeholder="Alias (Único)">
+            <button class="btn-gato" onclick="finalizarRegistro()">Comenzar</button>
         </div>
     </div>
 
@@ -67,8 +71,10 @@
                 <div style="font-size: 0.7rem; color: var(--verde);">ALIAS: <span id="user-alias">...</span></div>
             </div>
             <div class="grid-buttons">
-                <button class="btn-gato mini-btn" onclick="alert('Funcionalidad de transferencia activa en Firebase')">💸 Transferir</button>
+                <button class="btn-gato mini-btn" onclick="abrirModal('modal-transferir')">💸 Transferir</button>
                 <button class="btn-gato mini-btn" onclick="abrirModal('modal-uqtcard')">💳 Cargar UQT</button>
+                <button class="btn-gato mini-btn" onclick="abrirModal('modal-sucursal')">📍 Sucursal</button>
+                <button class="btn-gato mini-btn" onclick="alert('Próximamente')">🤝 Préstamo</button>
             </div>
             <div class="gatocard">
                 <div class="chip"></div>
@@ -78,29 +84,50 @@
                     <div>CVV: <span id="card-cvv">***</span></div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div id="admin-screen" style="display:none;">
-        <h2 style="color:var(--verde);">PANEL CONTROL ADRO CORP</h2>
-        <div class="container">
-            <div style="background: #111; padding: 15px; border-radius: 10px;">
-                <h4>💵 Inyectar Fondos</h4>
-                <input type="text" id="adm-id" placeholder="Alias">
-                <input type="number" id="adm-monto" placeholder="R$">
-                <button class="btn-gato" onclick="adminCargarSaldo()">Dar Dinero</button>
-            </div>
-            <button class="btn-gato btn-outline" onclick="location.reload()">Salir</button>
+            <h4 style="color:var(--verde); margin-top:20px;">MOVIMIENTOS</h4>
+            <div id="lista-movimientos"></div>
         </div>
     </div>
 
     <div id="modal-uqtcard" class="modal">
         <div class="modal-content">
             <h3>Cargar UQTCard</h3>
-            <input type="email" id="uqt-email" placeholder="Email UQT">
-            <input type="number" id="uqt-monto" placeholder="Monto R$">
-            <button class="btn-gato" onclick="confirmarUQT()">Confirmar Carga</button>
+            <div id="uqt-step-1">
+                <input type="email" id="uqt-email" placeholder="Email del usuario UQT">
+                <input type="number" id="uqt-monto" placeholder="Importe R$">
+                <button class="btn-gato" onclick="validarUQT()">Siguiente</button>
+            </div>
+            <div id="uqt-step-2" style="display:none;">
+                <p>¿Confirmas cargar R$ <b id="uqt-resumen-monto"></b> al usuario <b id="uqt-resumen-email"></b>?</p>
+                <button class="btn-gato" onclick="confirmarUQT()">Confirmar Carga</button>
+            </div>
             <button class="btn-gato btn-outline" onclick="cerrarModales()">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="admin-screen" style="display:none;">
+        <h2 style="color:var(--verde);">PANEL CONTROL ADRO CORP</h2>
+        <div class="container">
+            <div class="admin-box">
+                <h4>💵 Dar Plata</h4>
+                <input type="text" id="adm-id" placeholder="Alias o N° Tarjeta">
+                <input type="number" id="adm-monto" placeholder="Cantidad R$">
+                <button class="btn-gato" onclick="adminCargarSaldo()">Inyectar Fondos</button>
+            </div>
+
+            <div class="admin-box">
+                <h4>🚫 Bloquear Usuario</h4>
+                <input type="text" id="adm-block-id" placeholder="Alias o N° Tarjeta">
+                <input type="text" id="adm-block-time" placeholder="Tiempo (ej: Permanente)">
+                <button class="btn-gato" style="background:var(--rojo);" onclick="adminBloquear()">Bloquear</button>
+                <div id="lista-baneados" style="margin-top:10px; font-size:0.7rem;"></div>
+            </div>
+
+            <div class="admin-box">
+                <h4>📅 Turnos Pendientes</h4>
+                <div id="lista-turnos-admin"></div>
+            </div>
+            <button class="btn-gato btn-outline" onclick="location.reload()">Salir del Panel</button>
         </div>
     </div>
 
@@ -122,58 +149,106 @@
         let logoClicks = 0;
         const ADMIN_PASS = "AdroCorp..##@@";
 
-        // --- SISTEMA DE RESCATE (LOGOTIPO) ---
-        function tripleClic() {
+        // RESCATE: Tocar logo 3 veces
+        function atajoRescate() {
             logoClicks++;
-            if (logoClicks >= 3) {
-                logoClicks = 0;
-                const rescate = prompt("SISTEMA DE RESCATE ADRO CORP.\nIngrese clave maestra para desbloquear:");
-                if (rescate === ADMIN_PASS) {
+            if(logoClicks >= 3) {
+                const pass = prompt("SISTEMA DE RECUPERACIÓN ADRO CORP. Ingrese Clave Maestra:");
+                if(pass === ADMIN_PASS) {
                     localStorage.removeItem('admin_blocked');
-                    alert("SISTEMA DESBLOQUEADO CORRECTAMENTE.");
+                    alert("SISTEMA RESTABLECIDO.");
                     location.reload();
                 } else {
-                    alert("CLAVE ERRÓNEA. APLICANDO PENALIZACIÓN DE R$ 1000.");
-                    aplicarPenalizacion();
+                    alert("CLAVE MAESTRA INCORRECTA.");
+                    logoClicks = 0;
                 }
             }
         }
 
-        async function aplicarPenalizacion() {
-            if (auth.currentUser) {
-                await db.collection('usuarios_banco').doc(auth.currentUser.uid).update({
-                    saldo: firebase.firestore.FieldValue.increment(-1000)
-                });
-            }
-        }
-
-        // --- AUTH ---
+        // --- FUNCIONES DE CUENTA ---
         async function crearCuenta() {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('pass').value;
-            if (!email || !pass) return alert("Email y contraseña obligatorios");
+            if(!email || !pass) return alert("Completa los campos");
             try {
                 await auth.createUserWithEmailAndPassword(email, pass);
             } catch (e) { alert("Error: " + e.message); }
         }
 
-        async function completarRegistro() {
+        async function finalizarRegistro() {
+            const user = auth.currentUser;
             const nombre = document.getElementById('reg-nombre').value;
             const apellido = document.getElementById('reg-apellido').value;
-            const alias = document.getElementById('reg-alias').value.trim();
-            if (!nombre || !apellido || !alias) return alert("Completa todos los campos");
+            const alias = document.getElementById('reg-alias').value;
+            
+            if(!nombre || !alias) return alert("Faltan datos");
 
             const cardNum = "7777 " + Math.floor(1000+Math.random()*8999) + " " + Math.floor(1000+Math.random()*8999) + " " + Math.floor(1000+Math.random()*8999);
-            const newUser = {
-                uid: auth.currentUser.uid,
-                email: auth.currentUser.email,
+            
+            await db.collection('usuarios_banco').doc(user.uid).set({
                 nombre, apellido, alias,
+                email: user.email,
                 saldo: 0,
-                cardNum,
-                cvv: Math.floor(100 + Math.random() * 899)
-            };
-            await db.collection('usuarios_banco').doc(auth.currentUser.uid).set(newUser);
+                cardNum: cardNum,
+                cvv: Math.floor(100 + Math.random()*899)
+            });
             location.reload();
+        }
+
+        function accesoAdmin() {
+            if (localStorage.getItem('admin_blocked') === 'true') {
+                alert("ACCESO BLOQUEADO POR SEGURIDAD. Use el atajo del logo.");
+                return;
+            }
+            const clave = prompt("Ingrese Clave Maestra:");
+            if (clave === ADMIN_PASS) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('admin-screen').style.display = 'flex';
+                cargarAdminData();
+            } else {
+                adminAttempts++;
+                if (adminAttempts >= 3) {
+                    localStorage.setItem('admin_blocked', 'true');
+                    location.reload();
+                } else {
+                    alert(`Incorrecto. ${adminAttempts}/3`);
+                }
+            }
+        }
+
+        // CARGAR UQT CARD
+        function validarUQT() {
+            const email = document.getElementById('uqt-email').value;
+            const monto = parseFloat(document.getElementById('uqt-monto').value);
+            if (!email || monto <= 0 || monto > userData.saldo) return alert("Datos inválidos o saldo insuficiente");
+            document.getElementById('uqt-resumen-email').innerText = email;
+            document.getElementById('uqt-resumen-monto').innerText = monto;
+            document.getElementById('uqt-step-1').style.display = 'none';
+            document.getElementById('uqt-step-2').style.display = 'block';
+        }
+
+        async function confirmarUQT() {
+            const email = document.getElementById('uqt-email').value;
+            const monto = parseFloat(document.getElementById('uqt-monto').value);
+            const batch = db.batch();
+            batch.update(db.collection('usuarios_banco').doc(auth.currentUser.uid), { saldo: firebase.firestore.FieldValue.increment(-monto) });
+            await batch.commit();
+            alert("Carga enviada");
+            cerrarModales();
+        }
+
+        async function adminCargarSaldo() {
+            const id = document.getElementById('adm-id').value;
+            const monto = parseFloat(document.getElementById('adm-monto').value);
+            const snap = await db.collection('usuarios_banco').where('alias', '==', id).get();
+            if(snap.empty) return alert("No existe");
+            await snap.docs[0].ref.update({ saldo: firebase.firestore.FieldValue.increment(monto) });
+            alert("Listo");
+        }
+
+        async function cargarAdminData() {
+            const banSnap = await db.collection('baneados').get();
+            document.getElementById('lista-baneados').innerHTML = banSnap.docs.length + " usuarios en lista negra.";
         }
 
         function checkAuth() {
@@ -184,7 +259,6 @@
                     if (doc.exists) {
                         userData = doc.data();
                         document.getElementById('auth-screen').style.display = 'none';
-                        document.getElementById('setup-profile').style.display = 'none';
                         document.getElementById('app-screen').style.display = 'flex';
                         escucharDatos();
                     } else {
@@ -200,37 +274,32 @@
                 userData = doc.data();
                 document.getElementById('user-name').innerText = userData.nombre;
                 document.getElementById('user-alias').innerText = userData.alias;
-                document.getElementById('saldo-val').innerText = (userData.saldo < 0 ? 0 : userData.saldo).toLocaleString();
+                document.getElementById('saldo-val').innerText = userData.saldo.toLocaleString();
                 document.getElementById('card-number').innerText = userData.cardNum;
                 document.getElementById('card-holder').innerText = userData.nombre + " " + userData.apellido;
                 document.getElementById('card-cvv').innerText = userData.cvv;
             });
         }
 
+        function abrirModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function cerrarModales() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
         async function iniciarSesion() {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('pass').value;
-            try { await auth.signInWithEmailAndPassword(email, pass); } catch (e) { alert("Datos incorrectos"); }
+            try { await auth.signInWithEmailAndPassword(email, pass); } catch (e) { alert("Error de acceso"); }
         }
-
-        function accesoAdmin() {
-            if (localStorage.getItem('admin_blocked') === 'true') return alert("BLOQUEADO");
-            const clave = prompt("Clave Admin:");
-            if (clave === ADMIN_PASS) {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('admin-screen').style.display = 'flex';
-            } else {
-                adminAttempts++;
-                if (adminAttempts >= 3) {
-                    localStorage.setItem('admin_blocked', 'true');
-                    location.reload();
-                } else alert("Error " + adminAttempts + "/3");
-            }
-        }
-
-        function abrirModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function cerrarModales() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
         function logout() { auth.signOut().then(() => location.reload()); }
     </script>
+
+    <div id="adro-corp-footer" style="background: #050505; color: #555; padding: 40px 20px; text-align: center; border-top: 1px solid #111; font-family: 'Segoe UI', sans-serif; margin-top: 50px;">
+        <div style="max-width: 400px; margin: 0 auto;">
+            <p style="color: #888; font-weight: bold; letter-spacing: 2px; margin-bottom: 20px; font-size: 0.8rem;">WEB DE ADRO CORPORATION</p>
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px;">
+                <a href="https://bit.ly/BancoGato" target="_blank" style="color: #98ff98; text-decoration: none; font-size: 1rem; border: 1px solid #1a1a1a; padding: 10px; border-radius: 8px;">🐾 BancoGato</a>
+                <a href="https://bit.ly/uqtweb" target="_blank" style="color: #32CD32; text-decoration: none; font-size: 1rem; border: 1px solid #1a1a1a; padding: 10px; border-radius: 8px;">🚉 UQT S.A.</a>
+            </div>
+            <p style="font-size: 0.65rem;">&copy; 2026 Adro Corp. v6.8.6 Deployment</p>
+        </div>
+    </div>
 </body>
 </html>
