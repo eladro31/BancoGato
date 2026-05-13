@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BancoGato | V 1.2 </title>
+    <title>BancoGato | V 1.3 - Nexus Corporation</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -18,56 +18,55 @@
         #auth-screen, #app-screen, #setup-profile, #admin-screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; }
         .container { width: 100%; max-width: 400px; }
 
-        /* Dashboard */
         .card-saldo { background: linear-gradient(145deg, #161616, #000); padding: 25px; border-radius: 24px; border: 1px solid #222; text-align: center; margin-bottom: 20px; }
         .r-money { font-size: 2.8rem; font-weight: 800; color: var(--verde); }
         .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        /* GatoCard */
         .gatocard { background: linear-gradient(135deg, #222 0%, #0a0a0a 100%); width: 100%; height: 210px; border-radius: 18px; padding: 25px; position: relative; border: 1px solid rgba(152,255,152,0.3); margin-top: 20px; box-sizing: border-box; }
         .chip { width: 45px; height: 35px; background: linear-gradient(to bottom right, #ffd700, #b8860b); border-radius: 6px; margin-bottom: 30px; }
         .card-num { font-family: 'Courier New', monospace; font-size: 1.2rem; letter-spacing: 2px; }
 
-        /* Admin Styles */
-        .admin-box { background: #111; border: 1px solid #333; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-        .admin-item { border-bottom: 1px solid #222; padding: 10px 0; font-size: 0.8rem; }
+        /* Movimientos */
+        .movimiento-item { background: #111; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem; border-left: 4px solid #333; }
+        .mov-positivo { border-left-color: var(--verde); color: var(--verde); }
+        .mov-negativo { border-left-color: var(--rojo); color: var(--rojo); }
 
+        .admin-box { background: #111; border: 1px solid #333; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: var(--panel); padding: 30px; border-radius: 20px; border: 1px solid var(--verde); width: 100%; max-width: 380px; overflow-y: auto; max-height: 90vh; }
-        
-        /* Paint Style for Loan */
         #loan-canvas { background: white; border-radius: 5px; cursor: crosshair; margin-top: 10px; width: 100%; height: 150px; }
     </style>
 </head>
 <body onload="checkAuth()">
 
     <div id="auth-screen">
-        <img src="https://i.postimg.cc/zXxLcyCv/1778560410678-(1).jpg" onclick="atajoRescate()" style="max-width: 150px; margin-bottom: 20px; cursor: pointer;">
-        <h2>BancoGato</h2>
+        <img src="https://i.postimg.cc/zXxLcyCv/1778560410678-(1).jpg" onclick="atajoRescate()" style="max-width: 150px; margin-bottom: 10px; cursor: pointer;">
+        <h2 style="margin-bottom: 5px;">BancoGato</h2>
+        <p style="font-size: 0.8rem; color: #777; margin-bottom: 20px;">ingresa con una cuenta de Nexus Corporation o Cree una</p>
         <div class="container">
-            <input type="email" id="email" placeholder="Email de UQT">
+            <input type="email" id="email" placeholder="Email institucional">
             <input type="password" id="pass" placeholder="Tu Contraseña">
             <button class="btn-gato" onclick="iniciarSesion()">Entrar</button>
             <button class="btn-gato btn-outline" onclick="crearCuenta()">Crear Cuenta</button>
-            <button id="btn-admin-gate" class="btn-gato btn-outline" style="opacity: 0.4;" onclick="accesoAdmin()">Admin</button>
+            <button id="btn-admin-gate" class="btn-gato btn-outline" style="opacity: 0.4;" onclick="accesoAdmin()">Panel Nexus</button>
         </div>
     </div>
 
     <div id="setup-profile" style="display:none;">
-        <h2>Crea tu Perfil Gato</h2>
+        <h2>Perfil Nexus Corporation</h2>
         <div class="container">
             <input type="text" id="reg-nombre" placeholder="Nombre">
             <input type="text" id="reg-apellido" placeholder="Apellido">
-            <input type="text" id="reg-alias" placeholder="Alias (Único)">
-            <button class="btn-gato" onclick="finalizarRegistro()">Comenzar</button>
+            <input type="text" id="reg-alias" placeholder="Alias Bancario (Único)">
+            <button class="btn-gato" onclick="finalizarRegistro()">Vincular Cuenta</button>
         </div>
     </div>
 
     <div id="app-screen" style="display:none;">
         <div class="container">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <span>Hola, <b id="user-name">...</b></span>
-                <button onclick="logout()" style="color:var(--rojo); background:none; border:none; cursor:pointer;">Cerrar Sesión</button>
+                <span>Usuario: <b id="user-name">...</b></span>
+                <button onclick="logout()" style="color:var(--rojo); background:none; border:none; cursor:pointer;">Cerrar</button>
             </div>
             <div class="card-saldo">
                 <div class="r-money">R$ <span id="saldo-val">0.00</span></div>
@@ -79,6 +78,7 @@
                 <button class="btn-gato mini-btn" onclick="abrirModal('modal-sucursal')">📍 Sucursal</button>
                 <button class="btn-gato mini-btn" onclick="abrirModal('modal-prestamo')">🤝 Préstamo</button>
             </div>
+            
             <div class="gatocard">
                 <div class="chip"></div>
                 <div class="card-num" id="card-number">7777 **** **** ****</div>
@@ -87,105 +87,52 @@
                     <div>CVV: <span id="card-cvv">***</span></div>
                 </div>
             </div>
-            <h4 style="color:var(--verde); margin-top:20px;">MOVIMIENTOS</h4>
-            <div id="lista-movimientos"></div>
+
+            <h4 style="color:var(--verde); margin-top:25px; letter-spacing: 1px;">HISTORIAL DE MOVIMIENTOS</h4>
+            <div id="lista-movimientos">
+                <p style="font-size: 0.7rem; color: #444;">No hay movimientos recientes.</p>
+            </div>
         </div>
     </div>
 
     <div id="modal-transferir" class="modal">
         <div class="modal-content">
-            <h3>Transferir</h3>
+            <h3>Transferencia Nexus</h3>
             <div id="t-step-1">
                 <input type="text" id="t-alias" placeholder="Alias del destinatario">
-                <button class="btn-gato" onclick="validarTransferencia()">Siguiente</button>
+                <button class="btn-gato" onclick="validarTransferencia()">Verificar Alias</button>
             </div>
             <div id="t-step-2" style="display:none;">
-                <p>Destinatario: <b id="t-resumen-nombre"></b></p>
-                <input type="number" id="t-monto" placeholder="Importe R$">
+                <p>Destino: <b id="t-resumen-nombre"></b></p>
+                <input type="number" id="t-monto" placeholder="Monto R$">
                 <button class="btn-gato" onclick="resumenTransferencia()">Siguiente</button>
             </div>
             <div id="t-step-3" style="display:none;">
-                <h4>Confirmar Datos</h4>
-                <p>A: <b id="f-nombre"></b> (<b id="f-alias"></b>)</p>
-                <p>Importe: <b>R$ </b><b id="f-monto"></b></p>
-                <button class="btn-gato" onclick="confirmarTransferencia()">Confirmar y Enviar</button>
-            </div>
-            <button class="btn-gato btn-outline" onclick="cerrarModales()">Cerrar</button>
-        </div>
-    </div>
-
-    <div id="modal-sucursal" class="modal">
-        <div class="modal-content">
-            <h3>Turno en Sucursal</h3>
-            <select id="suc-lista">
-                <option value="">Selecciona Sucursal</option>
-            </select>
-            <input type="date" id="suc-fecha">
-            <input type="time" id="suc-hora">
-            <button class="btn-gato" onclick="enviarTurno()">Solicitar Turno</button>
-            <button class="btn-gato btn-outline" onclick="cerrarModales()">Cerrar</button>
-        </div>
-    </div>
-
-    <div id="modal-prestamo" class="modal">
-        <div class="modal-content">
-            <h3>Solicitud de Préstamo</h3>
-            <input type="number" id="pre-monto" placeholder="Monto solicitado">
-            <input type="date" id="pre-devolucion" placeholder="Fecha de devolución">
-            <p style="font-size: 0.8rem;">Firma el contrato aquí:</p>
-            <canvas id="loan-canvas"></canvas>
-            <button class="btn-gato" onclick="enviarPrestamo()">Firmar y Solicitar</button>
-            <button class="btn-gato btn-outline" onclick="cerrarModales()">Cerrar</button>
-        </div>
-    </div>
-
-    <div id="modal-uqtcard" class="modal">
-        <div class="modal-content">
-            <h3>Cargar UQTCard</h3>
-            <div id="uqt-step-1">
-                <input type="email" id="uqt-email" placeholder="Email del usuario UQT">
-                <input type="number" id="uqt-monto" placeholder="Importe R$">
-                <button class="btn-gato" onclick="validarUQT()">Siguiente</button>
-            </div>
-            <div id="uqt-step-2" style="display:none;">
-                <p>¿Confirmas cargar R$ <b id="uqt-resumen-monto"></b> al usuario <b id="uqt-resumen-email"></b>?</p>
-                <button class="btn-gato" onclick="confirmarUQT()">Confirmar Carga</button>
+                <h4>Confirmar Envío</h4>
+                <p>A: <b id="f-alias"></b></p>
+                <p>Total: <b>R$ </b><b id="f-monto"></b></p>
+                <button class="btn-gato" onclick="confirmarTransferencia()">Confirmar</button>
             </div>
             <button class="btn-gato btn-outline" onclick="cerrarModales()">Cancelar</button>
         </div>
     </div>
 
     <div id="admin-screen" style="display:none;">
-        <h2 style="color:var(--verde);">PANEL CONTROL ADRO CORP</h2>
+        <h2 style="color:var(--verde);">NEXUS CORPORATION CENTRAL</h2>
         <div class="container">
             <div class="admin-box">
-                <h4>🏢 Sucursales</h4>
-                <input type="text" id="adm-sucursal-nombre" placeholder="Nombre de Sucursal">
-                <button class="btn-gato" onclick="adminAgregarSucursal()">Agregar Sucursal</button>
-                <div id="adm-lista-sucursales" style="font-size: 0.8rem; margin-top: 10px;"></div>
-            </div>
-
-            <div class="admin-box">
-                <h4>🤝 Préstamos Recibidos</h4>
-                <div id="adm-lista-prestamos" style="font-size: 0.7rem;"></div>
-            </div>
-
-            <div class="admin-box">
-                <h4>💵 Dar Plata</h4>
-                <input type="text" id="adm-id" placeholder="Alias o N° Tarjeta">
+                <h4>💵 Inyección de Capital</h4>
+                <input type="text" id="adm-id" placeholder="Alias del Usuario">
                 <input type="number" id="adm-monto" placeholder="Cantidad R$">
-                <button class="btn-gato" onclick="adminCargarSaldo()">Inyectar Fondos</button>
+                <button class="btn-gato" onclick="adminCargarSaldo()">Inyectar</button>
             </div>
-
             <div class="admin-box">
-                <h4>🚫 Bloquear Usuario</h4>
-                <input type="text" id="adm-block-id" placeholder="Alias o N° Tarjeta">
-                <input type="text" id="adm-block-time" placeholder="Tiempo (ej: Permanente)">
-                <button class="btn-gato" style="background:var(--rojo);" onclick="adminBloquear()">Bloquear</button>
-                <div id="lista-baneados" style="margin-top:10px; font-size:0.7rem;"></div>
+                <h4>⚖️ Multar Usuario</h4>
+                <input type="text" id="adm-multa-id" placeholder="Alias del Usuario">
+                <input type="number" id="adm-multa-monto" placeholder="Cantidad a quitar R$">
+                <button class="btn-gato" style="background: var(--rojo);" onclick="adminMultar()">Aplicar Multa</button>
             </div>
-
-            <button class="btn-gato btn-outline" onclick="location.reload()">Salir del Panel</button>
+            <button class="btn-gato btn-outline" onclick="location.reload()">Salir</button>
         </div>
     </div>
 
@@ -203,27 +150,57 @@
         const db = firebase.firestore();
 
         let userData = null;
-        let adminAttempts = 0;
-        let logoClicks = 0;
-        const ADMIN_PASS = "AdroCorp..##@@";
+        const ADMIN_PASS = "NexusCorp..2026";
 
-        // --- LÓGICA DE TRANSFERENCIA ---
+        // --- SISTEMA DE MOVIMIENTOS ---
+        async function registrarMovimiento(uid, actividad, monto, tipo) {
+            await db.collection('movimientos_banco').add({
+                uid: uid,
+                actividad: actividad,
+                monto: monto,
+                tipo: tipo, // 'entrada' o 'salida'
+                fecha: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        function escucharMovimientos(uid) {
+            db.collection('movimientos_banco')
+                .where('uid', '==', uid)
+                .orderBy('fecha', 'desc')
+                .limit(10)
+                .onSnapshot(snap => {
+                    const box = document.getElementById('lista-movimientos');
+                    if (snap.empty) return;
+                    box.innerHTML = "";
+                    snap.forEach(doc => {
+                        const m = doc.data();
+                        const clase = m.tipo === 'entrada' ? 'mov-positivo' : 'mov-negativo';
+                        const simbolo = m.tipo === 'entrada' ? '+' : '-';
+                        box.innerHTML += `
+                            <div class="movimiento-item ${clase}">
+                                <b>${m.actividad}</b><br>
+                                ${simbolo} R$ ${parseFloat(m.monto).toLocaleString()}
+                            </div>
+                        `;
+                    });
+                });
+        }
+
+        // --- LOGICA DE TRANSFERENCIAS ---
         let transferTarget = null;
         async function validarTransferencia() {
             const alias = document.getElementById('t-alias').value;
             const snap = await db.collection('usuarios_banco').where('alias', '==', alias).get();
-            if(snap.empty) return alert("Alias no encontrado");
-            transferTarget = snap.docs[0].data();
-            transferTarget.id = snap.docs[0].id;
-            document.getElementById('t-resumen-nombre').innerText = transferTarget.nombre + " " + transferTarget.apellido;
+            if(snap.empty) return alert("Usuario Nexus no encontrado");
+            transferTarget = { ...snap.docs[0].data(), id: snap.docs[0].id };
+            document.getElementById('t-resumen-nombre').innerText = transferTarget.nombre;
             document.getElementById('t-step-1').style.display = 'none';
             document.getElementById('t-step-2').style.display = 'block';
         }
 
         function resumenTransferencia() {
             const monto = parseFloat(document.getElementById('t-monto').value);
-            if(monto > userData.saldo || monto <= 0) return alert("Saldo insuficiente o monto inválido");
-            document.getElementById('f-nombre').innerText = transferTarget.nombre + " " + transferTarget.apellido;
+            if(monto > userData.saldo || monto <= 0) return alert("Fondos insuficientes");
             document.getElementById('f-alias').innerText = transferTarget.alias;
             document.getElementById('f-monto').innerText = monto;
             document.getElementById('t-step-2').style.display = 'none';
@@ -233,153 +210,49 @@
         async function confirmarTransferencia() {
             const monto = parseFloat(document.getElementById('t-monto').value);
             const batch = db.batch();
+            
+            // Restar al emisor
             batch.update(db.collection('usuarios_banco').doc(auth.currentUser.uid), { saldo: firebase.firestore.FieldValue.increment(-monto) });
+            // Sumar al receptor
             batch.update(db.collection('usuarios_banco').doc(transferTarget.id), { saldo: firebase.firestore.FieldValue.increment(monto) });
+            
             await batch.commit();
-            alert("Transferencia Exitosa");
+            
+            // Registrar movimientos
+            await registrarMovimiento(auth.currentUser.uid, `Transferencia a ${transferTarget.alias}`, monto, 'salida');
+            await registrarMovimiento(transferTarget.id, `Transferencia de ${userData.alias}`, monto, 'entrada');
+            
+            alert("Transferencia completada bajo protocolo Nexus.");
             cerrarModales();
         }
 
-        // --- LÓGICA DE SUCURSAL ---
-        async function enviarTurno() {
-            const suc = document.getElementById('suc-lista').value;
-            const fecha = document.getElementById('suc-fecha').value;
-            const hora = document.getElementById('suc-hora').value;
-            if(!suc || !fecha || !hora) return alert("Completa todos los datos");
-            await db.collection('turnos_banco').add({
-                sucursal: suc, fecha, hora,
-                usuario: userData.alias,
-                nombre: userData.nombre + " " + userData.apellido
-            });
-            alert("Turno solicitado, revisa con Admin");
-            cerrarModales();
+        // --- ADMIN: INYECTAR / MULTAR ---
+        async function adminCargarSaldo() {
+            const alias = document.getElementById('adm-id').value;
+            const monto = parseFloat(document.getElementById('adm-monto').value);
+            const snap = await db.collection('usuarios_banco').where('alias', '==', alias).get();
+            if(snap.empty) return alert("Usuario inexistente");
+            
+            const uId = snap.docs[0].id;
+            await db.collection('usuarios_banco').doc(uId).update({ saldo: firebase.firestore.FieldValue.increment(monto) });
+            await registrarMovimiento(uId, "Inyección de Capital (Nexus Corp)", monto, 'entrada');
+            alert("Fondos inyectados");
         }
 
-        async function adminAgregarSucursal() {
-            const nombre = document.getElementById('adm-sucursal-nombre').value;
-            if(!nombre) return;
-            await db.collection('sucursales').add({ nombre });
-            alert("Sucursal Agregada");
-            cargarSucursales();
+        async function adminMultar() {
+            const alias = document.getElementById('adm-multa-id').value;
+            const monto = parseFloat(document.getElementById('adm-multa-monto').value);
+            const snap = await db.collection('usuarios_banco').where('alias', '==', alias).get();
+            if(snap.empty) return alert("Usuario inexistente");
+            
+            const uId = snap.docs[0].id;
+            await db.collection('usuarios_banco').doc(uId).update({ saldo: firebase.firestore.FieldValue.increment(-monto) });
+            await registrarMovimiento(uId, "Multa / Ajuste de Cuenta", monto, 'salida');
+            alert("Multa aplicada");
         }
 
-        async function cargarSucursales() {
-            const snap = await db.collection('sucursales').get();
-            const select = document.getElementById('suc-lista');
-            const listaAdm = document.getElementById('adm-lista-sucursales');
-            select.innerHTML = '<option value="">Selecciona Sucursal</option>';
-            listaAdm.innerHTML = "";
-            snap.forEach(doc => {
-                select.innerHTML += `<option value="${doc.data().nombre}">${doc.data().nombre}</option>`;
-                listaAdm.innerHTML += `<div>📍 ${doc.data().nombre}</div>`;
-            });
-        }
-
-        // --- LÓGICA DE PRESTAMO (PAINT) ---
-        const canvas = document.getElementById('loan-canvas');
-        const ctx = canvas.getContext('2d');
-        let painting = false;
-
-        canvas.addEventListener('mousedown', () => painting = true);
-        canvas.addEventListener('mouseup', () => { painting = false; ctx.beginPath(); });
-        canvas.addEventListener('mousemove', draw);
-
-        function draw(e) {
-            if(!painting) return;
-            const rect = canvas.getBoundingClientRect();
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-        }
-
-        async function enviarPrestamo() {
-            const monto = document.getElementById('pre-monto').value;
-            const fecha = document.getElementById('pre-devolucion').value;
-            const firma = canvas.toDataURL(); // Convierte dibujo a imagen
-            if(!monto || !fecha) return alert("Faltan datos");
-            await db.collection('prestamos').add({
-                monto, fecha, firma,
-                usuario: userData.alias,
-                nombre: userData.nombre + " " + userData.apellido,
-                fechaSolicitud: new Date().toLocaleString()
-            });
-            alert("Préstamo enviado a archivos de Admin");
-            cerrarModales();
-        }
-
-        // --- CARGAR DATOS ADMIN ---
-        async function cargarAdminData() {
-            cargarSucursales();
-            // Cargar Préstamos
-            const preSnap = await db.collection('prestamos').get();
-            const preDiv = document.getElementById('adm-lista-prestamos');
-            preDiv.innerHTML = "";
-            preSnap.forEach(doc => {
-                const p = doc.data();
-                preDiv.innerHTML += `<div class="admin-item">
-                    💰 R$ ${p.monto} | Para: ${p.fecha} <br> 
-                    Por: ${p.nombre} (${p.usuario}) <br>
-                    <img src="${p.firma}" style="width:100px; background:white; margin-top:5px;">
-                </div>`;
-            });
-        }
-
-        // --- FUNCIONES BASE RE-UTILIZADAS ---
-        function atajoRescate() {
-            logoClicks++;
-            if(logoClicks >= 3) {
-                const pass = prompt("SISTEMA DE RECUPERACIÓN ADRO CORP. Ingrese Clave Maestra:");
-                if(pass === ADMIN_PASS) {
-                    localStorage.removeItem('admin_blocked');
-                    alert("SISTEMA RESTABLECIDO.");
-                    location.reload();
-                } else {
-                    alert("CLAVE MAESTRA INCORRECTA.");
-                    logoClicks = 0;
-                }
-            }
-        }
-
-        async function crearCuenta() {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
-            if(!email || !pass) return alert("Completa los campos");
-            try { await auth.createUserWithEmailAndPassword(email, pass); } catch (e) { alert("Error: " + e.message); }
-        }
-
-        async function finalizarRegistro() {
-            const user = auth.currentUser;
-            const nombre = document.getElementById('reg-nombre').value;
-            const apellido = document.getElementById('reg-apellido').value;
-            const alias = document.getElementById('reg-alias').value;
-            if(!nombre || !alias) return alert("Faltan datos");
-            const cardNum = "7777 " + Math.floor(1000+Math.random()*8999) + " " + Math.floor(1000+Math.random()*8999) + " " + Math.floor(1000+Math.random()*8999);
-            await db.collection('usuarios_banco').doc(user.uid).set({
-                nombre, apellido, alias,
-                email: user.email, saldo: 0, cardNum: cardNum,
-                cvv: Math.floor(100 + Math.random()*899)
-            });
-            location.reload();
-        }
-
-        function accesoAdmin() {
-            if (localStorage.getItem('admin_blocked') === 'true') return alert("BLOQUEADO. Use el logo.");
-            const clave = prompt("Ingrese Clave Maestra:");
-            if (clave === ADMIN_PASS) {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('admin-screen').style.display = 'flex';
-                cargarAdminData();
-            } else {
-                adminAttempts++;
-                if (adminAttempts >= 3) { localStorage.setItem('admin_blocked', 'true'); location.reload(); }
-            }
-        }
-
+        // --- FUNCIONES CORE ---
         function checkAuth() {
-            if (localStorage.getItem('admin_blocked') === 'true') document.getElementById('btn-admin-gate').style.display = 'none';
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     const doc = await db.collection('usuarios_banco').doc(user.uid).get();
@@ -388,7 +261,7 @@
                         document.getElementById('auth-screen').style.display = 'none';
                         document.getElementById('app-screen').style.display = 'flex';
                         escucharDatos();
-                        cargarSucursales();
+                        escucharMovimientos(user.uid);
                     } else {
                         document.getElementById('auth-screen').style.display = 'none';
                         document.getElementById('setup-profile').style.display = 'flex';
@@ -409,36 +282,64 @@
             });
         }
 
-        function abrirModal(id) { 
-            document.getElementById(id).style.display = 'flex';
-            if(id === 'modal-prestamo') {
-                // Limpiar canvas al abrir
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
+        async function crearCuenta() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+            if(!email || !pass) return alert("Completa los datos");
+            try { await auth.createUserWithEmailAndPassword(email, pass); } catch (e) { alert(e.message); }
         }
+
+        async function iniciarSesion() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+            try { await auth.signInWithEmailAndPassword(email, pass); } catch (e) { alert("Error de acceso Nexus"); }
+        }
+
+        async function finalizarRegistro() {
+            const user = auth.currentUser;
+            const nombre = document.getElementById('reg-nombre').value;
+            const apellido = document.getElementById('reg-apellido').value;
+            const alias = document.getElementById('reg-alias').value;
+            const cardNum = "7777 " + Math.floor(1000+Math.random()*8999) + " " + Math.floor(1000+Math.random()*8999) + " " + Math.floor(1000+Math.random()*8999);
+            await db.collection('usuarios_banco').doc(user.uid).set({
+                nombre, apellido, alias, email: user.email, saldo: 0, cardNum, cvv: Math.floor(100 + Math.random()*899)
+            });
+            location.reload();
+        }
+
+        function abrirModal(id) { document.getElementById(id).style.display = 'flex'; }
         function cerrarModales() { 
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
-            // Reset pasos transferencia
             document.getElementById('t-step-1').style.display = 'block';
             document.getElementById('t-step-2').style.display = 'none';
             document.getElementById('t-step-3').style.display = 'none';
         }
-        async function iniciarSesion() {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
-            try { await auth.signInWithEmailAndPassword(email, pass); } catch (e) { alert("Error de acceso"); }
+        function accesoAdmin() {
+            const clave = prompt("Clave de Seguridad Nexus:");
+            if (clave === ADMIN_PASS) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('admin-screen').style.display = 'flex';
+            }
         }
         function logout() { auth.signOut().then(() => location.reload()); }
+        let logoClicks = 0;
+        function atajoRescate() {
+            logoClicks++;
+            if(logoClicks >= 5) {
+                const p = prompt("Protocolo de Emergencia Nexus:");
+                if(p === "NEXUS_RESET") { localStorage.clear(); location.reload(); }
+            }
+        }
     </script>
 
-    <div id="adro-corp-footer" style="background: #050505; color: #555; padding: 40px 20px; text-align: center; border-top: 1px solid #111; font-family: 'Segoe UI', sans-serif; margin-top: 50px;">
+    <div id="nexus-footer" style="background: #050505; color: #555; padding: 40px 20px; text-align: center; border-top: 1px solid #111; font-family: 'Segoe UI', sans-serif; margin-top: 50px;">
         <div style="max-width: 400px; margin: 0 auto;">
-            <p style="color: #888; font-weight: bold; letter-spacing: 2px; margin-bottom: 20px; font-size: 0.8rem;">WEB DE ADRO CORPORATION</p>
-            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px;">
-                <a href="https://bit.ly/BancoGato" target="_blank" style="color: #98ff98; text-decoration: none; font-size: 1rem; border: 1px solid #1a1a1a; padding: 10px; border-radius: 8px;">🐾 BancoGato</a>
-                <a href="https://bit.ly/uqtweb" target="_blank" style="color: #32CD32; text-decoration: none; font-size: 1rem; border: 1px solid #1a1a1a; padding: 10px; border-radius: 8px;">🚉 UQT S.A.</a>
+            <p style="color: #444; font-weight: bold; letter-spacing: 2px; margin-bottom: 20px; font-size: 0.7rem;">SISTEMA PROPIEDAD DE NEXUS CORPORATION</p>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                <a href="#" style="color: var(--verde); text-decoration: none; font-size: 0.9rem;">Soporte Nexus</a>
+                <a href="#" style="color: #444; text-decoration: none; font-size: 0.8rem;">Políticas de Privacidad</a>
             </div>
-            <p style="font-size: 0.65rem;">&copy; 2026 Adro Corp. v6.8.6 Deployment</p>
+            <p style="font-size: 0.6rem;">&copy; 2026 Nexus Corp. Todos los derechos reservados.</p>
         </div>
     </div>
 </body>
